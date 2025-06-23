@@ -5,6 +5,7 @@ participant Websocket
 participant Dataservice
 activate User
 activate Dataservice
+
 alt Try:
 Server ->> Server: loop.run_until_complete(main()) "laufe bis main durch ist"
 
@@ -12,7 +13,7 @@ Server ->> Server: await runner.setup()
 Server ->> Server: await site.start()
 activate Server
 note right of Server : Server bereit
-loop 
+
 Server -> Server : async websocket_handel(request)
 Server ->> Websocket : Websocket Initialisierung
 activate Websocket
@@ -38,6 +39,7 @@ loop IF (USER UUID == UUID Dataservice) == True;
 end
 
 else Else (IF not Liste)
+
 Server -> User: await Response No Valid UUID
 end
 
@@ -70,15 +72,6 @@ Websocket ->> Websocket: Create Task send_data
 Websocket ->> User: await task
 
 Server -> Server: await stop_event.wait()
-note Left of User : Benutzer Drückt CTRL+C
-User -> Server : SIGINT Signal gesendet
-Server -> User : User Disconnected
-deactivate User
-Server -> Server : erstellen eine asyncio.event_loop()
-Server -> Server : definieren der async event loop
-Server -> Server : erstellen einer async Event, stop_event
-Server -> Server : definieren von async stop_event
-Server -> Server : stop_event ist SIGINT und löst eine callback _on_shutdown Funktion aus
 end
 deactivate Websocket
 Server -> Server : await runner.cleanup()
